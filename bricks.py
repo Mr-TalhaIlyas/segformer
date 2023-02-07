@@ -57,3 +57,28 @@ class StochasticDepth(nn.Module):
     def __repr__(self):
        s = f"{self.__class__.__name__}(p={self.p})"
        return s
+
+#//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+def resize(input,
+           size=None,
+           scale_factor=None,
+           mode='bilinear',
+           align_corners=None,
+           warning=True):
+
+    return F.interpolate(input, size, scale_factor, mode, align_corners)
+
+#//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# class ConvModule(nn.Module):
+#     def __init__(self, embed_dim, act_layer):
+#         super().__init__()
+#         self.conv = nn.Conv2d(embed_dim*4, embed_dim, kernel_size=1)
+#         self.norm = norm_layer(embed_dim)
+#         self.act = act_layer()
+    
+#     def forward(self, x):
+#         x = self.conv(x)
+#         x = self.norm(x)
+#         x = self.act(x)
+#         return x

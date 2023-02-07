@@ -177,24 +177,6 @@ class MixVisionTransformer(nn.ModuleDict):
         ) for i in range(depths[3])])
         self.norm4 = norm_layer(embed_dims[3])
 
-        self.init_weights()
-
-    def init_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                nn.init.trunc_normal_(m.weight, std=0.02)
-                if isinstance(m, nn.Linear) and m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
-            elif isinstance(m, nn.LayerNorm):
-                nn.init.constant_(m.bias, 0.0)
-                nn.init.constant_(m.weight, 1.0)
-            elif isinstance(m, nn.Conv2d):
-                fan_out = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                fan_out //= m.groups
-                nn.init.normal_(m.weight, std=math.sqrt(2.0/fan_out))
-                if m.bias is not None:
-                    m.bias.data.zero_()
-
     def forward_features(self, x):
         B = x.shape[0]
         outs = []
@@ -241,55 +223,54 @@ class MixVisionTransformer(nn.ModuleDict):
 
 #%%
 
-from torchsummary import summary
-model = MixVisionTransformer(patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratio=[4, 4, 4, 4],
-            qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 6, 40, 3], sr_ratio=[8, 4, 2, 1],
-            drop_rate=0.0, drop_path_rate=0.1)
+# from torchsummary import summary
 
-summary(model, (3,224,224), depth=2)
+# model = MixVisionTransformer(patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratio=[4, 4, 4, 4],
+#             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 6, 40, 3], sr_ratio=[8, 4, 2, 1],
+#             drop_rate=0.0, drop_path_rate=0.1)
+
+# # summary(model, (3,224,224), depth=2)
+
+# x = torch.randn((1,3,224,224))
+# y = model.forward(x)
+
+# for i in range(len(y)):
+#     print(y[i].shape)
 #%%
-ckpt = '/home/user01/data/talha/segformer/chkpts/mit_b5.pth'
+# ckpt = '/home/user01/data/talha/segformer/chkpts/mit_b5.pth'
 
-def load_pretrained_chkpt(model, pretrained_path=None):
-    if pretrained_path is not None:
-        chkpt = torch.load(pretrained_path,
-                            map_location='cuda' if torch.cuda.is_available() else 'cpu')
-        try:
-            # load pretrained
-            pretrained_dict = chkpt#['model_state_dict']
-            # load model state dict
-            state = model.state_dict()
-            # loop over both dicts and make a new dict where name and the shape of new state match
-            # with the pretrained state dict.
-            matched, unmatched = [], []
-            new_dict = {}
-            for i, j in zip(pretrained_dict.items(), state.items()):
-                pk, pv = i # pretrained state dictionary
-                nk, nv = j # new state dictionary
-                # if name and weight shape are same
-                if pk.strip('module.') == nk.strip('module.') and pv.shape == nv.shape:
-                    new_dict[nk] = pv
-                    matched.append(pk)
-                else:
-                    unmatched.append(pk)
+# def load_pretrained_chkpt(model, pretrained_path=None):
+#     if pretrained_path is not None:
+#         chkpt = torch.load(pretrained_path,
+#                             map_location='cuda' if torch.cuda.is_available() else 'cpu')
+#         try:
+#             # load pretrained
+#             pretrained_dict = chkpt#['model_state_dict']
+#             # load model state dict
+#             state = model.state_dict()
+#             # loop over both dicts and make a new dict where name and the shape of new state match
+#             # with the pretrained state dict.
+#             matched, unmatched = [], []
+#             new_dict = {}
+#             for i, j in zip(pretrained_dict.items(), state.items()):
+#                 pk, pv = i # pretrained state dictionary
+#                 nk, nv = j # new state dictionary
+#                 # if name and weight shape are same
+#                 if pk.strip('module.') == nk.strip('module.') and pv.shape == nv.shape:
+#                     new_dict[nk] = pv
+#                     matched.append(pk)
+#                 else:
+#                     unmatched.append(pk)
 
-            state.update(new_dict)
-            model.load_state_dict(state)
-            print('Pre-trained state loaded successfully...')
-            print(f'Mathed kyes: {len(matched)}, Unmatched Keys: {len(unmatched)}')
-        except:
-            print(f'ERROR in pretrained_dict @ {pretrained_path}')
-    else:
-        print('Enter pretrained_dict path.')
+#             state.update(new_dict)
+#             model.load_state_dict(state)
+#             print('Pre-trained state loaded successfully...')
+#             print(f'Mathed kyes: {len(matched)}, Unmatched Keys: {len(unmatched)}')
+#         except:
+#             print(f'ERROR in pretrained_dict @ {pretrained_path}')
+#     else:
+#         print('Enter pretrained_dict path.')
+#     return matched, unmatched
 
-load_pretrained_chkpt(model, pretrained_path=ckpt)
-#%%
-ckpt = '/home/user01/data/talha/segformer/chkpts/mit_b5.pth'
-
-
-chkpt = torch.load(ckpt,
-                    map_location='cuda' if torch.cuda.is_available() else 'cpu')
-
-# load pretrained
-pretrained_dict = chkpt#['model_state_dict']
-# %%
+# matched, unmatched = load_pretrained_chkpt(model, pretrained_path=ckpt)
+# print(unmatched)
