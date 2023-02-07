@@ -8,4 +8,4 @@
   Figure 1: Performance of SegFormer-B0 to SegFormer-B5.
 </p>
 
-### [Project page](https://github.com/NVlabs/SegFormer) | [Paper](https://arxiv.org/abs/2105.15203)
+### [Paper](https://arxiv.org/abs/2105.15203)
