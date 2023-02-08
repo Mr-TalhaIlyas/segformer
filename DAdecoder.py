@@ -37,7 +37,8 @@ class ASPPModule(nn.ModuleList):
                     self.embed_dim,
                     kernel_size=1 if dilation == 1 else 3,
                     dilation=dilation,
-                    padding=0 if dilation == 1 else dilation))
+                    padding=0 if dilation == 1 else dilation,
+                    bias=False))
          
     def forward(self, x):
         """Forward function."""
@@ -65,7 +66,7 @@ class DAFormerHead(nn.Module):
         # 3rd step is applying ASPP module
         self.aspp = ASPPModule(dilation_rates, embed_dim*4, embed_dim)
         # 4ht step is concating and fusing
-        self.fuse = ConvModule(embed_dim*len(dilation_rates), embed_dim, kernel_size=3)
+        self.fuse = ConvModule(embed_dim*len(dilation_rates), embed_dim, kernel_size=3, bias=False)
         # final prediction
         self.cls_conv = nn.Sequential(nn.Dropout2d(p=0.1),
                                       nn.Conv2d(embed_dim, num_classes, kernel_size=1))

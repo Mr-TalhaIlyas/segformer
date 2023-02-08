@@ -76,10 +76,10 @@ def resize(input,
 
 #//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class ConvModule(nn.Module):
-    def __init__(self, inChannels, outChannels, kernel_size, stride=1, padding=0, dilation=1, groups=1, act_layer=nn.ReLU):
+    def __init__(self, inChannels, outChannels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, act_layer=nn.ReLU):
         super().__init__()
         self.conv = nn.Conv2d(inChannels, outChannels, kernel_size=kernel_size,
-                              stride=stride, padding=padding, dilation=dilation, groups=groups)
+                              stride=stride, padding=padding, dilation=dilation, groups=groups, bias=bias)
         self.norm = norm_layer(outChannels)
         self.act = act_layer()
     
@@ -90,14 +90,14 @@ class ConvModule(nn.Module):
         return x
 
 class DepthWiseConv(nn.Module):
-    def __init__(self, inChannels, outChannels, kernel_size, stride=1, padding=0, dilation=1):
+    def __init__(self, inChannels, outChannels, kernel_size, stride=1, padding=0, dilation=1, bias=True):
         super(DepthWiseConv, self).__init__()
         self.kernel_size = kernel_size
 
         if self.kernel_size != 1:
             self.depthwise = ConvModule(inChannels, inChannels, kernel_size=kernel_size,
-                                        stride=stride,  padding=padding, dilation=dilation, groups=inChannels)
-        self.pointwise = ConvModule(inChannels, outChannels, kernel_size=1)
+                                        stride=stride,  padding=padding, dilation=dilation, groups=inChannels, bias=bias)
+        self.pointwise = ConvModule(inChannels, outChannels, kernel_size=1, bias=bias)
 
     def forward(self, x):
         if self.kernel_size != 1:
