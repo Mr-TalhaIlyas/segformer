@@ -22,8 +22,9 @@ class SegFormer(nn.Module):
                                             drop_rate=drop_rate, drop_path_rate=drop_path_rate)
         
         self.decoder_head = SegFormerHead(inChannels=embed_dims, feature_strides=feature_strides,
-                                     dropout_ratio=0.1, act_layer=nn.ReLU, num_classes=num_classes,
-                                     embed_dim=embed_dim, align_corners=align_corners)
+                                      dropout_ratio=0.1, act_layer=nn.ReLU, num_classes=num_classes,
+                                      embed_dim=embed_dim, align_corners=align_corners)
+        
         self.init_weights()
 
     def init_weights(self):
@@ -48,11 +49,11 @@ class SegFormer(nn.Module):
 
         return out
     
-# from torchsummary import summary
+from torchsummary import summary
 
-# model = SegFormer()
-
-# summary(model, (3,224,224), depth=7)
+model = SegFormer()
+model.to('cuda')
+summary(model, (3,224,224), depth=2)
 
 # x = torch.randn((1,3,224,224))
 # y = model.forward(x)

@@ -223,16 +223,16 @@ class MixVisionTransformer(nn.ModuleDict):
 
 #%%
 
-# from torchsummary import summary
+from torchsummary import summary
 
-# model = MixVisionTransformer(patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratio=[4, 4, 4, 4],
-#             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 6, 40, 3], sr_ratio=[8, 4, 2, 1],
-#             drop_rate=0.0, drop_path_rate=0.1)
+model = MixVisionTransformer(patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratio=[4, 4, 4, 4],
+            qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 6, 40, 3], sr_ratio=[8, 4, 2, 1],
+            drop_rate=0.0, drop_path_rate=0.1)
 
 # # summary(model, (3,224,224), depth=2)
 
-# x = torch.randn((1,3,224,224))
-# y = model.forward(x)
+x = torch.randn((1,3,224,224))
+y = model.forward(x)
 
 # for i in range(len(y)):
 #     print(y[i].shape)

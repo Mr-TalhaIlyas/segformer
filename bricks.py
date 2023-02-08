@@ -2,6 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from sync_bn.nn.modules import SynchronizedBatchNorm2d
+from functools import partial
+
+norm_layer = partial(SynchronizedBatchNorm2d, momentum=3e-4)
+
 class DWConv(nn.Module):
     def __init__(self, dim=768):
         super(DWConv, self).__init__()
@@ -70,15 +75,32 @@ def resize(input,
     return F.interpolate(input, size, scale_factor, mode, align_corners)
 
 #//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-# class ConvModule(nn.Module):
-#     def __init__(self, embed_dim, act_layer):
-#         super().__init__()
-#         self.conv = nn.Conv2d(embed_dim*4, embed_dim, kernel_size=1)
-#         self.norm = norm_layer(embed_dim)
-#         self.act = act_layer()
+class ConvModule(nn.Module):
+    def __init__(self, inChannels, outChannels, kernel_size, stride=1, padding=0, dilation=1, groups=1, act_layer=nn.ReLU):
+        super().__init__()
+        self.conv = nn.Conv2d(inChannels, outChannels, kernel_size=kernel_size,
+                              stride=stride, padding=padding, dilation=dilation, groups=groups)
+        self.norm = norm_layer(outChannels)
+        self.act = act_layer()
     
-#     def forward(self, x):
-#         x = self.conv(x)
-#         x = self.norm(x)
-#         x = self.act(x)
-#         return x
+    def forward(self, x):
+        x = self.conv(x)
+        x = self.norm(x)
+        x = self.act(x)
+        return x
+
+class DepthWiseConv(nn.Module):
+    def __init__(self, inChannels, outChannels, kernel_size, stride=1, padding=0, dilation=1):
+        super(DepthWiseConv, self).__init__()
+        self.kernel_size = kernel_size
+
+        if self.kernel_size != 1:
+            self.depthwise = ConvModule(inChannels, inChannels, kernel_size=kernel_size,
+                                        stride=stride,  padding=padding, dilation=dilation, groups=inChannels)
+        self.pointwise = ConvModule(inChannels, outChannels, kernel_size=1)
+
+    def forward(self, x):
+        if self.kernel_size != 1:
+            x = self.depthwise(x)
+        out = self.pointwise(x)
+        return out

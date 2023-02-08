@@ -43,7 +43,7 @@ class SegFormerHead(nn.Module):
         self.linear_c2 = MLP(inputDim=c2_in_channels, embed_dim=embed_dim)
         self.linear_c1 = MLP(inputDim=c1_in_channels, embed_dim=embed_dim)
 
-        self.linear_fuse = nn.Conv2d(embed_dim*4, embed_dim, kernel_size=1)
+        self.linear_fuse = nn.Conv2d(embed_dim*4, embed_dim, kernel_size=3) # 3 is in DAFormer confirmed88
         self.norm = norm_layer(embed_dim)
         self.act = act_layer()
         self.dropout = nn.Dropout2d(dropout_ratio)
@@ -58,7 +58,7 @@ class SegFormerHead(nn.Module):
         _c4 = self.linear_c4(c4).permute(0,2,1).reshape(N, -1, c4.shape[2], c4.shape[3]) # 1st step unify the channel dimensions
         _c4 = resize(_c4, size=c1.size()[2:], mode='bilinear', align_corners=False) # 2nd step upsampling the dimensions
         
-        _c3 = self.linear_c3(c3).permute(0,2,1).reshape(N, -1, c3.shape[2], c3.shape[3])
+        _c3 = self.linear_c3(c3).permute(0,2,1).reshape(N, -1, c3.shape[2], c3.shape[3]) # reshaped ot B*C*H*W
         _c3 = resize(_c3, size=c1.size()[2:], mode='bilinear', align_corners=False)
 
         _c2 = self.linear_c2(c2).permute(0,2,1).reshape(N, -1, c2.shape[2], c2.shape[3])
