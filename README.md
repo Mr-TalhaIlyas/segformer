@@ -2,7 +2,7 @@
 
 <!-- ![image](resources/image.png) -->
 <div align="center">
-  <img src="./resources/image.png" height="400">
+  <img src="https://github.com/Mr-TalhaIlyas/segformer/blob/master/screens/sf.png">
 </div>
 <p align="center">
   Figure 1: Performance of SegFormer-B0 to SegFormer-B5.
